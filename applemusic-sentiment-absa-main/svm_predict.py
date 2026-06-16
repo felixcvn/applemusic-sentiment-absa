@@ -1,16 +1,53 @@
 import streamlit as st
 import pandas as pd
+import altair as alt
 import joblib
 import re
 import string
-import altair as alt
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 from slang_dictionary import slang_dict
 
-# --- Setup Page ---
-st.set_page_config(page_title="Apple Music Analyzer", page_icon="🎵", layout="wide")
+# Load model
+vectorizer = joblib.load("tfidf_vectorizer.pkl")
+model_audio = joblib.load("svm_model_aspek_audio_fitur.pkl")
+model_performa = joblib.load("svm_model_aspek_performa_sistem.pkl")
+model_harga = joblib.load("svm_model_aspek_harga_layanan.pkl")
+model_sentimen = joblib.load("svm_model_sentimen.pkl")
 
+stemmer = StemmerFactory().create_stemmer()
+stopword = StopWordRemoverFactory().create_stop_word_remover()
+
+def clean_text(text):
+    text = text.lower()
+    text = re.sub(r"http\S+|www\S+|<.*?>|@\w+|#\w+|\d+", "", text)
+
+    for slang, formal in slang_dict.items():
+        text = re.sub(r"\b" + re.escape(slang) + r"\b", formal, text)
+
+    text = text.translate(str.maketrans("", "", string.punctuation))
+    text = stopword.remove(text)
+    text = stemmer.stem(text)
+
+    return text.strip()
+
+def predict_single(text):
+    clean = clean_text(text)
+    vec = vectorizer.transform([clean])
+
+    return {
+        "Sentimen_label":
+            "Positif" if model_sentimen.predict(vec)[0] == 1 else "Negatif",
+
+        "Aspek_Audio_Fitur_label":
+            "Ya" if model_audio.predict(vec)[0] == 1 else "Tidak",
+
+        "Aspek_Performa_Sistem_label":
+            "Ya" if model_performa.predict(vec)[0] == 1 else "Tidak",
+
+        "Aspek_Harga_Layanan_label":
+            "Ya" if model_harga.predict(vec)[0] == 1 else "Tidak",
+    }
 # --- Custom CSS (Apple Luxury Aesthetic) ---
 def local_css():
     st.markdown("""

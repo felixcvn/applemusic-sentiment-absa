@@ -3,7 +3,7 @@ import pandas as pd
 
 # Import prediksi dari masing-masing algoritma
 from xgb_boost import predict_single as predict_xgb
-from app import predict_single as predict_svm
+from svm_predict import predict_single as predict_svm
 
 # ===========================
 # Konfigurasi halaman
