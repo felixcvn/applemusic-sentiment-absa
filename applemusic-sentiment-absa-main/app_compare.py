@@ -3,6 +3,8 @@ import pandas as pd
 import altair as alt
 import os
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Import prediksi dari masing-masing algoritma
 from xgb_boost import predict_single as predict_xgb
 from svm_predict import predict_single as predict_svm
@@ -193,7 +195,7 @@ tab1, tab2, tab3 = st.tabs([
 @st.cache_data
 def load_dataset():
     try:
-        return pd.read_csv('data_preprocessed.csv').dropna(subset=['clean_teks'])
+        return pd.read_csv(os.path.join(BASE_DIR, 'data_preprocessed.csv')).dropna(subset=['clean_teks'])
     except:
         return pd.DataFrame()
 
@@ -468,10 +470,10 @@ with tab3:
     col_img3, col_img4 = st.columns(2)
     
     # Render Confusion Matrix images if available
-    img_sentimen = "cm_xgb_sentimen.png"
-    img_audio = "cm_xgb_aspek_audio_fitur.png"
-    img_performa = "cm_xgb_aspek_performa_sistem.png"
-    img_harga = "cm_xgb_aspek_harga_layanan.png"
+    img_sentimen = os.path.join(BASE_DIR, "cm_xgb_sentimen.png")
+    img_audio = os.path.join(BASE_DIR, "cm_xgb_aspek_audio_fitur.png")
+    img_performa = os.path.join(BASE_DIR, "cm_xgb_aspek_performa_sistem.png")
+    img_harga = os.path.join(BASE_DIR, "cm_xgb_aspek_harga_layanan.png")
 
     with col_img1:
         if os.path.exists(img_sentimen):

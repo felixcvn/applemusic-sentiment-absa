@@ -8,12 +8,15 @@ from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 from slang_dictionary import slang_dict
 
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Load model
-vectorizer = joblib.load("tfidf_vectorizer.pkl")
-model_audio = joblib.load("svm_model_aspek_audio_fitur.pkl")
-model_performa = joblib.load("svm_model_aspek_performa_sistem.pkl")
-model_harga = joblib.load("svm_model_aspek_harga_layanan.pkl")
-model_sentimen = joblib.load("svm_model_sentimen.pkl")
+vectorizer = joblib.load(os.path.join(BASE_DIR, "tfidf_vectorizer.pkl"))
+model_audio = joblib.load(os.path.join(BASE_DIR, "svm_model_aspek_audio_fitur.pkl"))
+model_performa = joblib.load(os.path.join(BASE_DIR, "svm_model_aspek_performa_sistem.pkl"))
+model_harga = joblib.load(os.path.join(BASE_DIR, "svm_model_aspek_harga_layanan.pkl"))
+model_sentimen = joblib.load(os.path.join(BASE_DIR, "svm_model_sentimen.pkl"))
 
 stemmer = StemmerFactory().create_stemmer()
 stopword = StopWordRemoverFactory().create_stop_word_remover()
@@ -227,7 +230,7 @@ if __name__ == "__main__":
     @st.cache_data
     def load_dataset():
         try:
-            return pd.read_csv('data_preprocessed.csv').dropna(subset=['clean_teks'])
+            return pd.read_csv(os.path.join(BASE_DIR, 'data_preprocessed.csv')).dropna(subset=['clean_teks'])
         except:
             return pd.DataFrame()
 
@@ -240,11 +243,11 @@ if __name__ == "__main__":
     @st.cache_resource
     def load_svm_models():
         try:
-            v = joblib.load("tfidf_vectorizer.pkl")
-            m_a = joblib.load("svm_model_aspek_audio_fitur.pkl")
-            m_p = joblib.load("svm_model_aspek_performa_sistem.pkl")
-            m_h = joblib.load("svm_model_aspek_harga_layanan.pkl")
-            m_s = joblib.load("svm_model_sentimen.pkl")
+            v = joblib.load(os.path.join(BASE_DIR, "tfidf_vectorizer.pkl"))
+            m_a = joblib.load(os.path.join(BASE_DIR, "svm_model_aspek_audio_fitur.pkl"))
+            m_p = joblib.load(os.path.join(BASE_DIR, "svm_model_aspek_performa_sistem.pkl"))
+            m_h = joblib.load(os.path.join(BASE_DIR, "svm_model_aspek_harga_layanan.pkl"))
+            m_s = joblib.load(os.path.join(BASE_DIR, "svm_model_sentimen.pkl"))
             return v, m_a, m_p, m_h, m_s
         except:
             return None, None, None, None, None

@@ -6,6 +6,9 @@ import string
 import joblib
 import pandas as pd
 import numpy as np
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Sastrawi — NLP Bahasa Indonesia
 try:
@@ -112,10 +115,10 @@ def load_models():
         return  # sudah dimuat sebelumnya
 
     print("[INFO] Memuat vectorizer dan model XGBoost...")
-    _vectorizer = joblib.load(VECTORIZER_PATH)
+    _vectorizer = joblib.load(os.path.join(BASE_DIR, VECTORIZER_PATH))
 
     for target, path in MODEL_PATHS.items():
-        _models[target] = joblib.load(path)
+        _models[target] = joblib.load(os.path.join(BASE_DIR, path))
 
     print("[INFO] Semua model berhasil dimuat.")
 
