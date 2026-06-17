@@ -71,15 +71,33 @@ def predict_single(text):
         "Aspek_Harga_Layanan_label": "Ya" if p_h == 1 else "Tidak",
     }
 
-    # AMBIL PROBABILITAS SVM (Gunakan indeks [0][1] untuk mengambil probabilitas Kelas 1)
-    if hasattr(model_sentimen, "predict_proba"):
+    # =========================================================================
+    # PERBAIKAN: LOGIKA AMAN DENGAN CHECK .probability UNTUK MENGHINDARI CRASH CLOUD
+    # =========================================================================
+    
+    # 1. Sentimen
+    if hasattr(model_sentimen, "predict_proba") and getattr(model_sentimen, "probability", False):
         result["proba_Sentimen"] = round(float(model_sentimen.predict_proba(vec)[0][1]), 4)
-    if hasattr(model_audio, "predict_proba"):
+    else:
+        result["proba_Sentimen"] = 1.0 if p_s == 1 else 0.0
+
+    # 2. Aspek Audio & Fitur
+    if hasattr(model_audio, "predict_proba") and getattr(model_audio, "probability", False):
         result["proba_Aspek_Audio_Fitur"] = round(float(model_audio.predict_proba(vec)[0][1]), 4)
-    if hasattr(model_performa, "predict_proba"):
+    else:
+        result["proba_Aspek_Audio_Fitur"] = 1.0 if p_a == 1 else 0.0
+
+    # 3. Aspek Performa Sistem
+    if hasattr(model_performa, "predict_proba") and getattr(model_performa, "probability", False):
         result["proba_Aspek_Performa_Sistem"] = round(float(model_performa.predict_proba(vec)[0][1]), 4)
-    if hasattr(model_harga, "predict_proba"):
+    else:
+        result["proba_Aspek_Performa_Sistem"] = 1.0 if p_p == 1 else 0.0
+
+    # 4. Aspek Harga Layanan
+    if hasattr(model_harga, "predict_proba") and getattr(model_harga, "probability", False):
         result["proba_Aspek_Harga_Layanan"] = round(float(model_harga.predict_proba(vec)[0][1]), 4)
+    else:
+        result["proba_Aspek_Harga_Layanan"] = 1.0 if p_h == 1 else 0.0
 
     return result
 
