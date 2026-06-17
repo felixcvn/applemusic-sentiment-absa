@@ -34,23 +34,55 @@ def clean_text(text):
 
     return text.strip()
 
+# def predict_single(text):
+#     clean = clean_text(text)
+#     vec = vectorizer.transform([clean])
+
+#     return {
+#         "Sentimen_label":
+#             "Positif" if model_sentimen.predict(vec)[0] == 1 else "Negatif",
+
+#         "Aspek_Audio_Fitur_label":
+#             "Ya" if model_audio.predict(vec)[0] == 1 else "Tidak",
+
+#         "Aspek_Performa_Sistem_label":
+#             "Ya" if model_performa.predict(vec)[0] == 1 else "Tidak",
+
+#         "Aspek_Harga_Layanan_label":
+#             "Ya" if model_harga.predict(vec)[0] == 1 else "Tidak",
+#     }
 def predict_single(text):
     clean = clean_text(text)
+    if not clean:
+        return {"error": "Teks tidak valid setelah preprocessing."}
+        
     vec = vectorizer.transform([clean])
 
-    return {
-        "Sentimen_label":
-            "Positif" if model_sentimen.predict(vec)[0] == 1 else "Negatif",
+    # Prediksi label biner asli (0 atau 1)
+    p_s = int(model_sentimen.predict(vec)[0])
+    p_a = int(model_audio.predict(vec)[0])
+    p_p = int(model_performa.predict(vec)[0])
+    p_h = int(model_harga.predict(vec)[0])
 
-        "Aspek_Audio_Fitur_label":
-            "Ya" if model_audio.predict(vec)[0] == 1 else "Tidak",
-
-        "Aspek_Performa_Sistem_label":
-            "Ya" if model_performa.predict(vec)[0] == 1 else "Tidak",
-
-        "Aspek_Harga_Layanan_label":
-            "Ya" if model_harga.predict(vec)[0] == 1 else "Tidak",
+    result = {
+        "Sentimen_label": "Positif" if p_s == 1 else "Negatif",
+        "Aspek_Audio_Fitur_label": "Ya" if p_a == 1 else "Tidak",
+        "Aspek_Performa_Sistem_label": "Ya" if p_p == 1 else "Tidak",
+        "Aspek_Harga_Layanan_label": "Ya" if p_h == 1 else "Tidak",
     }
+
+    # AMBIL PROBABILITAS SVM (Gunakan indeks [0][1] untuk mengambil probabilitas Kelas 1)
+    if hasattr(model_sentimen, "predict_proba"):
+        result["proba_Sentimen"] = round(float(model_sentimen.predict_proba(vec)[0][1]), 4)
+    if hasattr(model_audio, "predict_proba"):
+        result["proba_Aspek_Audio_Fitur"] = round(float(model_audio.predict_proba(vec)[0][1]), 4)
+    if hasattr(model_performa, "predict_proba"):
+        result["proba_Aspek_Performa_Sistem"] = round(float(model_performa.predict_proba(vec)[0][1]), 4)
+    if hasattr(model_harga, "predict_proba"):
+        result["proba_Aspek_Harga_Layanan"] = round(float(model_harga.predict_proba(vec)[0][1]), 4)
+
+    return result
+
 # --- Custom CSS (Apple Luxury Aesthetic) ---
 def local_css():
     st.markdown("""
